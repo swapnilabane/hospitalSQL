@@ -1,85 +1,79 @@
-while (True):
-    print("""
-            ================================
-               Welcome To CityHospital
-            ================================
-    """)
-    # creating database connectivity
-
-    import mysql.connector
-    from mysql.connector import Error
-
-    try:
-        mysql = mysql.connector.connect(host='127.0.0.1',
-                                             database='hospitalDB',
-                                             user='root',
-                                             password='swap')
-        if mysql.is_connected():
-            db_Info = mysql.get_server_info()
-            print("Connected to MySQL Server version ", db_Info)
-            mycursor = mysql.cursor()
-            mycursor.execute("select database();")
-            record = mycursor.fetchone()
-            print("You're connected to database: ", record)
-
-    except Error as e:
-        print("Error while connecting to MySQL", e)
-    finally:
-        # if connection.is_connected():
-        #     cursor.close()
-        #     connection.close()
-            print("MySQL connection is closed")
+import mysql.connector
+from mysql.connector import errorcode
+import streamlit as st
 
 
-    # creating the tables we need
-    mycursor.execute(
-        "create table if not exists patient_detail(name varchar(30) primary key,sex varchar(15),age int(3),address varchar(50),contact varchar(15))")
-    mycursor.execute(
-        "create table if not exists doctor_details(name varchar(30) primary key,specialisation varchar(40),age int(2),address varchar(30),contact varchar(15),fees int(10),monthly_salary int(10))")
-    mycursor.execute(
-        "create table if not exists nurse_details(name varchar(30) primary key,age int(2),address varchar(30),contact varchar(15),monthly_salary int(10))")
-    mycursor.execute(
-        "create table if not exists other_workers_details(name varchar(30) primary key,age int(2),address varchar(30),contact varchar(15),monthly_salary int(10))")
+try:
+  st.title("Welcome to Goa")
+  mysql = mysql.connector.connect(host='127.0.0.1',
+                                database='hospitalDB',
+                                user='root',
+                                password='swap')
 
-    # creating table for storing the username and password of the user
-    mycursor.execute(
-        "create table if not exists user_data(username varchar(30) primary key,password varchar(30) default'000')")
+  mycursor = mysql.cursor()
+  mycursor.execute("select database();")
+  record = mycursor.fetchone()
+  print("You're connected to database: ", record)
 
-    while (True):
-        print("""
-                        1. Sign In
-                        2. Registration
+  mycursor.execute(
+      "create table if not exists patient_detail(name varchar(30) primary key,sex varchar(15),age int(3),address varchar(50),contact varchar(15))")
+  mycursor.execute(
+      "create table if not exists doctor_details(name varchar(30) primary key,specialisation varchar(40),age int(2),address varchar(30),contact varchar(15),fees int(10),monthly_salary int(10))")
+  mycursor.execute(
+      "create table if not exists nurse_details(name varchar(30) primary key,age int(2),address varchar(30),contact varchar(15),monthly_salary int(10))")
+  mycursor.execute(
+      "create table if not exists other_workers_details(name varchar(30) primary key,age int(2),address varchar(30),contact varchar(15),monthly_salary int(10))")
+
+  # creating table for storing the username and password of the user
+  mycursor.execute(
+      "create table if not exists user_data(username varchar(30) primary key,password varchar(30) default'000')")
+
+
+except mysql.connector.Error as err:
+  if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+    print("Something is wrong with your user name or password")
+  elif err.errno == errorcode.ER_BAD_DB_ERROR:
+    print("Database does not exist")
+  else:
+    print(err)
+else:
+  mysql.close()
+
+
+def app():
+    while True:
+
+        options=st.radio('1. Sign In 2. Registration', ('SignIN', 'Register'))
+
+        if options == 'Register':
+            st.header("""
+
+                       
+                        !!!!!!!!!!  Register Yourself  !!!!!!!!
+                        
                                                             """)
-
-        r = int(input("enter your choice:"))
-        if r == 2:
-            print("""
-
-                =======================================
-                !!!!!!!!!!Register Yourself!!!!!!!!
-                =======================================
-                                                    """)
-            u = input("Input your username!!:")
-            p = input("Input the password (Password must be strong!!!:")
+            u = st.text_input("Input your username!!:")
+            p = st.text_input("Input the password (Password must be strong!!!:")
             mycursor.execute(
                 "insert into user_data values('" + u + "','" + p + "')")
             mysql.commit()
+            # st.button(mysql.commit(), 'Submit')
 
-            print("""
-                ============================================
-                !!Well Done!!Registration Done Successfully!!
-                ============================================
-                                                    """)
+            st.subheader("""
+                        ============================================
+                        !!Well Done!!Registration Done Successfully!!
+                        ============================================
+                                                            """)
             x = input("enter any key to continue:")
         # IF USER WANTS TO LOGIN
-        elif r == 1:
-            print("""
-                    ==================================
-                    !!!!!!!!  {{Sign In}}  !!!!!!!!!!
-                    ==================================
-                                                        """)
-            un = input("Enter Username!!:")
-            ps = input("Enter Password!!:")
+        elif options == 'SignIN':
+            st.header("""
+                            
+                            !!!!!!!! Sign In !!!!!!!!!!
+                            
+                                                                """)
+            un = st.text_input("Enter Username!!:")
+            ps = st.text_input("Enter Password!!:")
 
             mycursor.execute(
                 "select password from user_data where username='" + un + "'")
@@ -87,30 +81,30 @@ while (True):
             for i in row:
                 a = list(i)
                 if a[0] == str(ps):
-                    while (True):
+                    while True:
                         print("""
-                                1.Administration
-                                2.Patient(Details)
-                                3.Sign Out
+                                        1.Administration
+                                        2.Patient(Details)
+                                        3.Sign Out
 
-                                                            """)
+                                                                    """)
 
                         a = int(input("ENTER YOUR CHOICE:"))
                         if a == 1:
                             print("""
-                                    1. Display the details
-                                    2. Add a new member
-                                    3. Delete a member
-                                    4. Make an exit
-                                                             """)
+                                            1. Display the details
+                                            2. Add a new member
+                                            3. Delete a member
+                                            4. Make an exit
+                                                                     """)
                             b = int(input("Enter your Choice:"))
                             # details
                             if b == 1:
                                 print("""
-                                        1. Doctors Details
-                                        2. Nurse Details
-                                        3. Others
-                                                         """)
+                                                1. Doctors Details
+                                                2. Nurse Details
+                                                3. Others
+                                                                 """)
 
                                 c = int(input("Enter your Choice:"))
                                 if c == 1:
@@ -150,10 +144,10 @@ while (True):
                             elif b == 2:
                                 print("""
 
-                                        1. Doctor Details
-                                        2. Nurse Details
-                                        3. Others
-                                                                                    """)
+                                                1. Doctor Details
+                                                2. Nurse Details
+                                                3. Others
+                                                                                            """)
                                 c = int(input("ENTER YOUR CHOICE:"))
                                 # enter doctor details
                                 if c == 1:
@@ -166,8 +160,9 @@ while (True):
                                     fees = input("Enter the fees:")
                                     ms = input("Enter Monthly Salary:")
                                     # Inserting values in doctors details
-                                    mycursor.execute("insert into doctor_details values('" + name + "','" + spe +
-                                                     "','" + age + "','" + add + "','" + cont + "','" + fees + "','" + ms + "')")
+                                    mycursor.execute(
+                                        "insert into doctor_details values('" + name + "','" + spe +
+                                        "','" + age + "','" + add + "','" + cont + "','" + fees + "','" + ms + "')")
                                     mysql.commit()
                                     print("SUCCESSFULLY ADDED")
                                 # for nurse details
@@ -200,10 +195,10 @@ while (True):
                             # to delete data
                             elif b == 3:
                                 print("""
-                                        1. Doctor Details
-                                        2. Nurse Details
-                                        3. Others
-                                                                                    """)
+                                                1. Doctor Details
+                                                2. Nurse Details
+                                                3. Others
+                                                                                            """)
                                 c = int(input("Enter your Choice:"))
                                 # deleting doctor's details
                                 if c == 1:
@@ -261,11 +256,11 @@ while (True):
                         elif a == 2:
 
                             print("""
-                                        1. Show Patients Info
-                                        2. Add New Patient
-                                        3. Discharge Summary
-                                        4. Exit
-                                                               """)
+                                                1. Show Patients Info
+                                                2. Add New Patient
+                                                3. Discharge Summary
+                                                4. Exit
+                                                                       """)
                             b = int(input("Enter your Choice:"))
                             # showing the existing details
                             # if user wants to see the details of PATIENT
@@ -288,8 +283,9 @@ while (True):
                                 age = input("Enter age: ")
                                 address = input("Enter address: ")
                                 contact = input("Contact Details: ")
-                                mycursor.execute("insert into patient_detail values('" + name + "','" + sex + "','" +
-                                                 age + "','" + address + "','" + contact + "')")
+                                mycursor.execute(
+                                    "insert into patient_detail values('" + name + "','" + sex + "','" +
+                                    age + "','" + address + "','" + contact + "')")
                                 mysql.commit()
                                 mycursor.execute(
                                     "select * from patient_detail")
@@ -299,10 +295,10 @@ while (True):
                                          'ADDRESS', 'CONTACT']
                                     print(dict(zip(k, v)))
                                     print("""
-                                        ====================================
-                                        !!!!!!!Registered Successfully!!!!!!
-                                        ====================================
-                                                        """)
+                                                ====================================
+                                                !!!!!!!Registered Successfully!!!!!!
+                                                ====================================
+                                                                """)
                             # dischare process
                             elif b == 3:
                                 name = input("Enter the Patient Name:")
@@ -327,3 +323,7 @@ while (True):
                 # IF THE USERNAME AND PASSWORD IS NOT IN THE DATABASE
                 else:
                     break
+
+
+if __name__ == "__main__":
+    app()
