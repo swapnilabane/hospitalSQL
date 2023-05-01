@@ -1,0 +1,13 @@
+credentials:
+  usernames:
+    swapnil:
+      email: abaneswapnil1.com
+      name: Swapnil Abane
+      password: '$2b$12$6WegmWFxH0lXGcSivoHnKe8cLI5rn6dGBnaKbK/f2Rx0n9S1cZp1a' # To be replaced with hashed password
+cookie:
+  expiry_days: 10
+  key: some_signature_key
+  name: some_cookie_name
+preauthorized:
+  emails:
+    -
