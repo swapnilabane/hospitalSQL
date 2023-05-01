@@ -1,6 +1,5 @@
 import streamlit as st
 import mysql.connector
-from streamlit_card import card
 
 def doctor_detail(name, specialisation, age, address, contact, fees, monthly_salary):
     # Connect to the database and get the fines
