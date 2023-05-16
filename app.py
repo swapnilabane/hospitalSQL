@@ -33,17 +33,6 @@ authenticator = Authenticate(
 name, authentication_status, username = authenticator.login('Login', 'main')
 
 
-
-# Initialize connection.
-conn = st.experimental_connection('mysql', type='sql')
-
-# Perform query.
-df = conn.query('SELECT * from doctor_details;', ttl=600)
-
-# Print results.
-for row in df.itertuples():
-    st.write(f"{row.name} has a :{row.pet}:")
-
 def app():
     if authentication_status:
         st.title(f'Welcome to Hospital Management System')
