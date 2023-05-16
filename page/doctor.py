@@ -1,7 +1,7 @@
 import streamlit as st
 import mysql.connector
 
-def doctor_detail(name, specialisation, age, address, contact, fees, monthly_salary):
+def doctor_detail(name, specialisation, age, address, contact, fees, monthly_salary,patient_id):
     # Connect to the database and get the fines
     cnx = mysql.connector.connect(
         user="root",
@@ -11,8 +11,8 @@ def doctor_detail(name, specialisation, age, address, contact, fees, monthly_sal
     )
 
     cursor = cnx.cursor()
-    doctor_info = "insert into doctor_details (name, specialisation, age, address, contact, fees, monthly_salary) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    data_doctor = (name, specialisation, age, address, contact, fees, monthly_salary)
+    doctor_info = "insert into doctor_details (name, specialisation, age, address, contact, fees, monthly_salary, patient_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+    data_doctor = (name, specialisation, age, address, contact, fees, monthly_salary, patient_id)
     cursor.execute(doctor_info, data_doctor)
     cnx.commit()
     cursor.close()
@@ -41,6 +41,38 @@ def get_doctor_detail(name):
 
     return info
 
+
+def get_all_doctor_detail():
+    import pandas as pd
+    #Get doctor details
+    cnx = mysql.connector.connect(
+        user="root",
+        password="swap",
+        host="localhost",
+        database="newdb"
+    )
+
+    cursor = cnx.cursor()
+    st.write("DEBUG: call from show doctors")
+    get_info = "SELECT * FROM doctor_details"
+    try:
+        # data_info = (name, specialisation)
+        # st.write("DEBUG: inside try block")
+        cursor.execute(get_info)
+        fetchall_obj = cursor.fetchall()
+        if fetchall_obj:
+            # st.write("DEBUG: inside if block")
+            df = pd.DataFrame(columns=['doctor_id', 'name', 'specialisation', 'age', 'address', 'contact', 'fees', 'monthly_salary', 'patient_id'], data=fetchall_obj)
+            st.table(df)
+        else:
+            # st.write("DEBUG: inside else block")
+            st.error("Doctors database is empty")
+    except Exception as Err:
+        st.exception(Err)
+
+    cnx.commit()
+    cursor.close()
+    cnx.close()
 
 def del_doctor_detail(name):
     #Delete doctor details
